@@ -1,7 +1,7 @@
 # many-time-pad-assignment
 
 ## Problem
-Try to recover the plaintexts of all messages, as well as the encryption key used for them.
+Try to recover the plaintexts of all messages, as well as the encryption key used for them. More details [here](https://github.com/Polkadot-Blockchain-Academy/pba-content/blob/main/syllabus/1-Cryptography/materials/many-time-pad.md)
 
 ## Thought Process
 * Convert the plaintext of the message from hex to bytes
