@@ -1,52 +1,38 @@
-fn xorstrings(str1: &str, str2: &str) -> String {
-    let mut result = String::new();
-    for (byte1, byte2) in str1.bytes().zip(str2.bytes()) {
-        result.push((byte1 ^ byte2).into());
-    }
-    result
+fn hex_to_bytes(hex: &str) -> Vec<u8> {
+    hex.as_bytes()
+        .chunks(2)
+        .map(|chunk| u8::from_str_radix(std::str::from_utf8(chunk).unwrap(), 16).unwrap())
+        .collect()
 }
 
-fn dragging(cipher: &str, word: &str) {
-    for cons in cipher.chars().collect::<Vec<char>>().windows(word.len()) {
-        let cons_str: String = cons.iter().collect();
-        let result = xorstrings(word, &cons_str);
-        // println!("{} => {}", result, possible_randomness(&result));
-        println!("{}", result);
-    }
+fn xorbytes(byte1: &[u8], byte2: &[u8]) -> Vec<u8> {
+    byte1
+        .iter()
+        .zip(byte2.iter())
+        .map(|(&x1, &x2)| x1 ^ x2)
+        .collect()
 }
 
-// fn possible_randomness(s: &str) -> f64 {
-//     let mut total_difference = 0;
-//     let mut count = 0;
-//     let cleaned_str = s.replace(" ", "");
-//     for (a, b) in cleaned_str.chars().zip(cleaned_str.chars().skip(1)) {
-//         total_difference += (a as i32 - b as i32).abs();
-//         count += 1;
-//     }
-//     total_difference as f64 / count as f64
-// }
+fn bytes_to_string(bytes: &[u8]) -> String {
+    bytes.iter().map(|&b| b as char).collect()
+}
 
 fn main() {
-    let content = std::fs::read_to_string("encrypted_text");
+    let message = std::fs::read_to_string("encrypted_text");
+    let key = "Bitcoin: A purely peer-to-peer version of electronic cash would allow online payments to be sent directly from one party to another without going through a financial institution."
+        .as_bytes();
 
-    match content {
-        Ok(content) => {
-            let lines = content
+    match message {
+        Ok(message) => {
+            let bytes = message
                 .lines()
-                .map(hex::decode)
-                .map(Result::unwrap)
-                .map(|s| String::from_utf8_lossy(&s).to_string())
-                .collect::<Vec<String>>();
+                .map(|hex| hex_to_bytes(hex))
+                .map(|line| (xorbytes(&key, line.as_slice())))
+                .collect::<Vec<Vec<u8>>>();
 
-            let cipher = xorstrings(&lines[0], &lines[1]);
-            for word in [
-                " the ",
-                " brink ",
-                " the heroes "
-            ] {
-                println!("Checking with {}", word);
-                dragging(&cipher, word);
-            }
+            bytes
+                .iter()
+                .for_each(|e| println!("{}", bytes_to_string(e)));
         }
         Err(e) => {
             println!("An error occurred: {}", e);

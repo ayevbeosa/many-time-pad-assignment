@@ -2,6 +2,3 @@
 name = "many-time-pad-assignment"
 version = "0.1.0"
 edition = "2021"
-
-[dependencies]
-hex = "0.4.3"
